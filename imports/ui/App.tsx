@@ -13,7 +13,10 @@ const toggleDark = () => document.getElementById('body').classList.toggle('dark'
 export const App = () => (
   <BrowserRouter>
     <div>
-      <div id="fp_darkmode" onClick={toggleDark} >Dark Mode</div>
+      <section id="topright">
+        <div id="fp_darkmode" onClick={toggleDark} >Dark Mode</div>
+        <LoginForm />
+      </section>
       <nav className="few">
         <Link to="/">Home</Link>
         <Link to="/about">About</Link>
@@ -21,8 +24,6 @@ export const App = () => (
         <Link to="/blog">Blog</Link>
         <Link to="/files">Files</Link>
       </nav>
-      <h1>Welcome to Meteor!</h1>
-      <LoginForm />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/blog/*" element={<LeGrid />} />

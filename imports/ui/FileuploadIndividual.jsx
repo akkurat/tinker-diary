@@ -11,6 +11,7 @@ class IndividualFile extends Component {
 
   }
 
+  
 //   propTypes: {
 //     fileName: PropTypes.string.isRequired,
 //     fileSize: PropTypes.number.isRequired,

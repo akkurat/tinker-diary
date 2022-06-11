@@ -42,6 +42,6 @@ export const LoginForm = () => {
             </form>
         );
     } else {
-        return <div>{JSON.stringify(user)}</div>
+        return <div className="username">{user.username}</div>
     }
 };

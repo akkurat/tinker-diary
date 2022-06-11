@@ -10,3 +10,5 @@ Meteor.methods({
         PagesCollection.insert({text})
     }
 })
+
+Meteor.publish('pages', () => PagesCollection.find())

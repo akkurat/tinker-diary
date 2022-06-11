@@ -5,10 +5,10 @@ import { Hello } from './Hello'
 
 export const Pages = () => {
     const { pages, user, isLoading } = useTracker(() => {
-        // const sub = Meteor.subscribe('pages')
+        const sub = Meteor.subscribe('pages')
         const pages = PagesCollection.find().fetch()
         const user = Meteor.user()
-        const isLoading = false//!sub.ready
+        const isLoading = !sub.ready()
         return { pages, user, isLoading }
     })
     return <div>
