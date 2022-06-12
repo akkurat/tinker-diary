@@ -67,15 +67,15 @@ Meteor.startup(() => {
   if (BlogCollection.find().count() === 0) {
     const l = new LoremIpsum({
       sentencesPerParagraph: {
-        max: 8,
-        min: 4
+        max: 6,
+        min: 1
       },
       wordsPerSentence: {
-        max: 16,
-        min: 4
+        max: 10,
+        min: 2
       }
     })
-    const grids = [...Array(12).keys()].map(idx => ({ t: l.generateSentences(4), h: l.generateWords(2), p: l.generateParagraphs(40) }))
+    const grids = [...Array(12).keys()].map(idx => ({ t: l.generateSentences(1), h: l.generateWords(2), md: l.generateParagraphs(40) }))
     grids.forEach(g => BlogCollection.insert(g))
 
   }

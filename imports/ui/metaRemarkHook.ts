@@ -5,6 +5,7 @@ import {
     createElement,
     useState,
     useCallback,
+    useRef,
 } from 'react';
 import { unified } from 'unified';
 import remarkToRehype from 'remark-rehype';
@@ -19,6 +20,10 @@ import { toString } from "mdast-util-to-string";
 function getTitle(mdast) {
     let h1 = find(mdast, { type: "heading", depth: 1 });
     return toString(h1 || "(Ohne Titel)");
+}
+function getHead(mdast) {
+    let h1 = find(mdast, { type: "heading", depth: 2 });
+    return toString(h1 || "(Ohne Thema)");
 }
 
 export const useRemarkMeta: () => [a: ReactElement | null, b: string, c: (t: string) => void] = () => {
@@ -39,16 +44,17 @@ export const useRemarkMeta: () => [a: ReactElement | null, b: string, c: (t: str
     return [reactContent, meta, setMarkdownSource];
 };
 
-export const useRemarkMeta2: () => [a: ReactElement | null, b: string, c: (t: string) => void] = () => {
+export const useRemarkMeta2: (i: string) => [a: ReactElement | null, b: {title: string, head: string}, c: (t: string) => void] = (initial) => {
+    const first = useRef(true)
     const [reactContent, setReactContent] = useState<ReactElement | null>(null);
-    const [meta, setMeta] = useState('');
+    const [meta, setMeta] = useState({title:'', head:''});
 
     const setMarkdownSource = useCallback(async (source: string) => {
         const mdast = unified()
             .use(remarkParse)
             .parse(source)
 
-        setMeta(getTitle(mdast))
+        setMeta({title: getTitle(mdast), head: getHead(mdast)} )
 
         const parser = unified()
             .use(remarkToRehype)
@@ -58,6 +64,11 @@ export const useRemarkMeta2: () => [a: ReactElement | null, b: string, c: (t: st
 
         setReactContent(out as ReactElement)
     }, []);
+    if( first.current && initial )
+    {
+        first.current =false;
+        setMarkdownSource(initial)
+    }
 
     return [reactContent, meta, setMarkdownSource];
 };

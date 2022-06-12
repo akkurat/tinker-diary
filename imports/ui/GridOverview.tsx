@@ -3,7 +3,7 @@ import { useTracker } from "meteor/react-meteor-data"
 import * as React from 'react'
 import { useRef, useState } from "react"
 import ReactMarkdown from "react-markdown"
-import { Link, Route, Routes, useNavigate, useParams, useResolvedPath } from "react-router-dom"
+import { Link, Route, Routes, useLocation, useNavigate, useParams, useResolvedPath } from "react-router-dom"
 import { BlogCollection } from "../api/collections/blog"
 import { UserFiles } from "../api/collections/files"
 import { FileUploadToCollection } from "./FileuploadComponent"
@@ -14,6 +14,7 @@ import { toString } from "mdast-util-to-string";
 import { visit } from "unist-util-visit";
 import { useRemark } from "react-remark"
 import { useRemarkMeta, useRemarkMeta2 } from "./metaRemarkHook"
+import { MediaManager } from "./MediaManager"
 
 
 
@@ -31,13 +32,13 @@ const l = new LoremIpsum({
 const GridElement = ({ g, i }) => (<div key={i} id={'asdfsf' + i} className="blogGridChild">
     <h3>{g.h}</h3>
     <h2><Link to={g._id}>{g.t}</Link></h2>
-    <div>{g.p.split("\n").map(p => <p>{p}</p>)}</div>
+    {/* <div>{g.p.split("\n").map(p => <p>{p}</p>)}</div> */}
 </div>)
 
 const DummyGridelement = ({ i }) => (<div key={i} id={'asdfsf' + i} className="dummy blogGridChild">
     <h3>{l.generateWords(3)}</h3>
     <h2>{l.generateSentences(1)}</h2>
-    <div>{l.generateParagraphs(1).split("\n").map(p => <p>{p}</p>)}</div>
+    {/* <div>{l.generateParagraphs(1).split("\n").map(p => <p>{p}</p>)}</div> */}
 </div>)
 
 const BlogGrid = () => {
@@ -63,13 +64,7 @@ const BlogGrid = () => {
 const GridElementLarge = () => {
 
     const { idx } = useParams()
-    const { g, handle, files } = useTracker(() => {
-        const handle = Meteor.subscribe('blog.one', idx)
-        const handle2 = Meteor.subscribe('files.all', idx)
-        const g = BlogCollection.findOne(idx)
-        const files = g && g.files && UserFiles.find({ _id: { $in: g.files } }).fetch()
-        return { g, handle, files }
-    })
+    const { g, ready, files } = useOneBlog(idx)
     const [editable, setEditable] = useState(false)
 
 
@@ -80,9 +75,14 @@ const GridElementLarge = () => {
         Meteor.call('blog.push', idx, { files: ev._id })
 
 
+    const navigate = useNavigate()
+    const handleRightClick = e => {
+        e.preventDefault()
+        navigate('edit')
+    }
 
-    if (handle.ready()) {
-        return (<div className="articleContainer">
+    if (ready) {
+        return (<div className="articleContainer" onContextMenu={handleRightClick}>
             {files && files.map(f => <img src={UserFiles.findOne(f._id).link()} />)}
             <div id="edit" onClick={ev => setEditable(!editable)}>Edit</div>
             <div className="article">
@@ -96,43 +96,52 @@ const GridElementLarge = () => {
     }
 }
 
-const getTitle = (mdast) => {
-    let h1 = find(mdast, { type: "heading", depth: 1 });
-    return toString(h1 || "(Ohne Titel)");
-}
+const EditInt = ({g})=> {
 
-
-const Edit = () => {
-    const [md, setMd] = useState('')
+    const [md, setMd] = useState(g.md)
     const navigate = useNavigate()
-    const { idx } = useParams()
+    const location = useLocation()
 
-    const [reactMetaContent, meta, setMetaRact] = useRemarkMeta2()
+    const [reactMetaContent, meta, setMetaRact] = useRemarkMeta2(g.md)
 
     const mdComp = <ReactMarkdown children={md} />
 
     const handleMdChange = ({ currentTarget }) => {
         const text = currentTarget.value
         setMetaRact(text)
+        setMd(text)
     }
 
+    const loc = location.pathname
+    const newLocation = loc.match(/^.*\//)[0]
 
     const handleClick = (ev) => {
-        console.log(ev)
+        ev.preventDefault()
         if (ev.button == 2) {
-            ev.preventDefault()
-            Meteor.call('blogs.update', idx, { md, meta },
-                (err, res) => { if (!err) navigate('..') })
+            Meteor.call('blog.update', g._id, { md, ...meta },
+                (err, res) => { if (err) { alert(err) } else { navigate(newLocation) } })
         }
     }
 
     console.log(reactMetaContent)
 
     return <div className="articleEdit">
-        <div>Parsed Title: {meta} </div>
-        <textarea onClick={handleClick} onChange={handleMdChange}></textarea>
+        <MediaManager />
+        <div>Parsed Title: {meta.head} / {meta.title} </div>
+        <textarea onContextMenu={handleClick} value={md} onChange={handleMdChange}></textarea>
         {reactMetaContent}
     </div>
+}
+
+const Edit = () => {
+    
+    const { idx } = useParams()
+    const {g, ready, files}= useOneBlog(idx)
+    if( !ready )
+    return <div>Loading...</div>
+    else
+    return <EditInt g={g} />
+
 }
 
 
@@ -141,3 +150,13 @@ export const LeGrid = () => <Routes>
     <Route path="/:idx" element={<GridElementLarge />} />
     <Route path="/:idx/edit" element={<Edit />} />
 </Routes >
+function useOneBlog(idx: string): { g: any; ready: boolean, files: any } {
+    return useTracker(() => {
+        const handle = Meteor.subscribe('blog.one', idx)
+        const handle2 = Meteor.subscribe('files.all', idx)
+        const g = BlogCollection.findOne(idx)
+        const files = g && g.files && UserFiles.find({ _id: { $in: g.files } }).fetch()
+        return { g, ready: handle.ready() && handle2.ready(), files }
+    }  )
+}
+
