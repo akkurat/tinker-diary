@@ -15,6 +15,8 @@ import { visit } from "unist-util-visit";
 import { useRemark } from "react-remark"
 import { useRemarkMeta, useRemarkMeta2 } from "./metaRemarkHook"
 import { MediaManager } from "./MediaManager"
+import { LinkedMedia } from "./WikiComponents/LinkedMedia"
+import { FileObj } from "meteor/ostrio:files"
 
 
 
@@ -96,7 +98,7 @@ const GridElementLarge = () => {
     }
 }
 
-const EditInt = ({g})=> {
+const EditInt = ({ g, files }) => {
 
     const [md, setMd] = useState(g.md)
     const navigate = useNavigate()
@@ -122,25 +124,32 @@ const EditInt = ({g})=> {
                 (err, res) => { if (err) { alert(err) } else { navigate(newLocation) } })
         }
     }
-
+    const handleMediaSelect = (f: FileObj<any>) =>
+        Meteor.call('blog.push', g._id, { files: f._id })
     console.log(reactMetaContent)
 
-    return <div className="articleEdit">
-        <MediaManager />
-        <div>Parsed Title: {meta.head} / {meta.title} </div>
-        <textarea onContextMenu={handleClick} value={md} onChange={handleMdChange}></textarea>
-        {reactMetaContent}
+    return <div className="view-articleEdit">
+        <div className="toolbar" />
+        <MediaManager className="mediamanager" onSelect={handleMediaSelect} />
+        <LinkedMedia files={files} className="linkedMedia"/>
+        <div className="preview">
+            {reactMetaContent}
+        </div>
+        <div className="editor">
+            {/* <div>Parsed Title: {meta.head} / {meta.title} </div> */}
+            <textarea onContextMenu={handleClick} value={md} onChange={handleMdChange}></textarea>
+        </div>
     </div>
 }
 
 const Edit = () => {
-    
+
     const { idx } = useParams()
-    const {g, ready, files}= useOneBlog(idx)
-    if( !ready )
-    return <div>Loading...</div>
+    const { g, ready, files } = useOneBlog(idx)
+    if (!ready)
+        return <div>Loading...</div>
     else
-    return <EditInt g={g} />
+        return <EditInt g={g} files={files} />
 
 }
 
@@ -157,6 +166,6 @@ function useOneBlog(idx: string): { g: any; ready: boolean, files: any } {
         const g = BlogCollection.findOne(idx)
         const files = g && g.files && UserFiles.find({ _id: { $in: g.files } }).fetch()
         return { g, ready: handle.ready() && handle2.ready(), files }
-    }  )
+    })
 }
 

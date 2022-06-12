@@ -10,10 +10,12 @@
   "dependencies": {
     "@babel/runtime": "^7.17.9",
     "bcrypt": "^5.0.1",
+    "classnames": "^2.3.1",
     "lorem-ipsum": "^2.0.4",
     "mdast-react-render": "file:../../mdast/packages/mdast-react-render",
     "meteor-node-stubs": "^1.2.1",
     "micromark": "^3.0.10",
+    "primereact": "^8.1.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-markdown": "^8.0.3",

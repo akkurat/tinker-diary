@@ -108,6 +108,7 @@ class FileUploadComponent extends Component {
     }
   }
 
+  
   render() {
     debug("Rendering FileUpload",this.props.docsReadyYet);
     if (this.props.files && this.props.docsReadyYet) {

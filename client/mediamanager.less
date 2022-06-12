@@ -1,0 +1,53 @@
+.widget-mediaManager {
+    display: flex;
+    flex-flow: column;
+
+    .toolbar {
+        display: flex;
+        flex-flow: row nowrap;
+        list-style: none;
+    }
+
+    ul {
+        list-style: none;
+    }
+
+    ul.list {
+        display: flex;
+        flex-flow: column nowrap;
+
+        .mediaManager-tile {
+            height: auto;
+            width: auto;
+        }
+        img {
+            display: none;
+        }
+
+    }
+
+    ul.grid {
+        display: flex;
+        flex-flow: row wrap;
+        gap: 10px;
+    }
+
+}
+
+.mediaManager-tile {
+    width: 100px;
+    height: 100px;
+    background-color: var(--acc);
+    overflow: hidden;
+
+
+    >img {
+        height: 100%;
+    }
+}
+
+.mediaManager-linked {
+    display: flex;    
+    flex-direction: column;
+    gap: 10px;
+}
