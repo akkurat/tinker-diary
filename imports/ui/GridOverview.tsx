@@ -1,7 +1,7 @@
 import { LoremIpsum, loremIpsum } from "lorem-ipsum"
 import { useTracker } from "meteor/react-meteor-data"
 import * as React from 'react'
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import ReactMarkdown from "react-markdown"
 import { Link, Route, Routes, useLocation, useNavigate, useParams, useResolvedPath } from "react-router-dom"
 import { BlogCollection } from "../api/collections/blog"
@@ -13,10 +13,11 @@ import find from "unist-util-find";
 import { toString } from "mdast-util-to-string";
 import { visit } from "unist-util-visit";
 import { useRemark } from "react-remark"
-import { useRemarkMeta, useRemarkMeta2 } from "./metaRemarkHook"
-import { MediaManager } from "./MediaManager"
+import { useRemarkMeta2 } from "./metaRemarkHook"
+import { MediaManager, useOneImage } from "./MediaManager"
 import { LinkedMedia } from "./WikiComponents/LinkedMedia"
 import { FileObj } from "meteor/ostrio:files"
+import classNames from "classnames"
 
 
 
@@ -31,13 +32,17 @@ const l = new LoremIpsum({
     }
 })
 
-const GridElement = ({ g, i }) => (<div key={i} id={'asdfsf' + i} className="blogGridChild">
-    <h3>{g.h}</h3>
+const GridElement = ({ g, i }) => (<div key={i}  className={classNames('blogGridChild', {'span-2': g.files?.length > 1})}>
+    <h3><Link to={g._id}>{g.h}</Link></h3>
     <h2><Link to={g._id}>{g.t}</Link></h2>
-    {/* <div>{g.p.split("\n").map(p => <p>{p}</p>)}</div> */}
+    <p><Link to={g._id}>{g?.md?.substring(0,200)}</Link></p>
+    {g.files?.map( f => {
+       const {ready, fref} = useOneImage(f)
+       return ready ? <img src={fref.link()} /> : <img />
+    })}
 </div>)
 
-const DummyGridelement = ({ i }) => (<div key={i} id={'asdfsf' + i} className="dummy blogGridChild">
+const DummyGridelement = ({ i }) => (<div key={i}  className="dummy blogGridChild">
     <h3>{l.generateWords(3)}</h3>
     <h2>{l.generateSentences(1)}</h2>
     {/* <div>{l.generateParagraphs(1).split("\n").map(p => <p>{p}</p>)}</div> */}
@@ -62,12 +67,20 @@ const BlogGrid = () => {
     }
 
 }
+const Preview = ({ md, className }: { md: string, className: string }) => {
+    const [reactMetaContent, setMetaRact] = useRemarkMeta2()
+    useEffect(() => {
+        setMetaRact(md);
+      }, [md, setMetaRact]);
+    return <div className={className}>
+        {reactMetaContent?.vdom}
+    </div>
+}
 
 const GridElementLarge = () => {
 
     const { idx } = useParams()
     const { g, ready, files } = useOneBlog(idx)
-    const [editable, setEditable] = useState(false)
 
 
     const handleUpdate = prop => ev =>
@@ -85,12 +98,10 @@ const GridElementLarge = () => {
 
     if (ready) {
         return (<div className="articleContainer" onContextMenu={handleRightClick}>
-            {files && files.map(f => <img src={UserFiles.findOne(f._id).link()} />)}
-            <div id="edit" onClick={ev => setEditable(!editable)}>Edit</div>
-            <div className="article">
-                <ReactMarkdown children={g.md} />
-            </div>
-            <FileUploadToCollection onSuccess={handleFiles} />
+            {/* {files && files.map(f => <img src={UserFiles.findOne(f._id).link()} />)} */}
+            {/* <div id="edit" onClick={ev => setEditable(!editable)}>Edit</div> */}
+            <Preview className="article" md={g.md} />
+            {/* <FileUploadToCollection onSuccess={handleFiles} /> */}
         </div>
         )
     } else {
@@ -98,19 +109,17 @@ const GridElementLarge = () => {
     }
 }
 
+
 const EditInt = ({ g, files }) => {
 
     const [md, setMd] = useState(g.md)
     const navigate = useNavigate()
     const location = useLocation()
 
-    const [reactMetaContent, meta, setMetaRact] = useRemarkMeta2(g.md)
-
     const mdComp = <ReactMarkdown children={md} />
 
     const handleMdChange = ({ currentTarget }) => {
         const text = currentTarget.value
-        setMetaRact(text)
         setMd(text)
     }
 
@@ -120,21 +129,18 @@ const EditInt = ({ g, files }) => {
     const handleClick = (ev) => {
         ev.preventDefault()
         if (ev.button == 2) {
-            Meteor.call('blog.update', g._id, { md, ...meta },
+            Meteor.call('blog.setMd', g._id, md,
                 (err, res) => { if (err) { alert(err) } else { navigate(newLocation) } })
         }
     }
     const handleMediaSelect = (f: FileObj<any>) =>
         Meteor.call('blog.push', g._id, { files: f._id })
-    console.log(reactMetaContent)
 
     return <div className="view-articleEdit">
         <div className="toolbar" />
         <MediaManager className="mediamanager" onSelect={handleMediaSelect} />
-        <LinkedMedia files={files} className="linkedMedia"/>
-        <div className="preview">
-            {reactMetaContent}
-        </div>
+        <LinkedMedia files={files} className="linkedMedia" />
+        <Preview className="preview article" md={md}/>
         <div className="editor">
             {/* <div>Parsed Title: {meta.head} / {meta.title} </div> */}
             <textarea onContextMenu={handleClick} value={md} onChange={handleMdChange}></textarea>

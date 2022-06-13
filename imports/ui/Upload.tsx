@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { BottomNav } from './App'
 import Fileuploads from './Fileuploads'
+import { MediaManager } from './MediaManager'
 
 export const Up = () => {
     const bottomNav = React.useContext(BottomNav)
@@ -13,7 +14,7 @@ export const Up = () => {
 
     return <>
         <h1>Üpload</h1>
-        <Fileuploads />
+        <MediaManager onSelect={()=>true} />
 
     </>
 }

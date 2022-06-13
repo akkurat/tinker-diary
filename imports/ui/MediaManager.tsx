@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { FileObj } from "meteor/ostrio:files"
+import { FileObj, FileRef } from "meteor/ostrio:files"
 import { useTracker } from "meteor/react-meteor-data"
 import { UserFiles } from "../api/collections/files"
 import classNames from 'classnames'
@@ -8,11 +8,7 @@ import { FunctionComponent, useState } from 'react'
 
 
 export const MediaTile: FunctionComponent<{f: FileObj<any>, select?: (FileObj) => void}> = ({f, select}) => {
-    const { ready, fref } = useTracker(() => {
-        const fhandle = Meteor.subscribe('files.all')
-        const fref = UserFiles.findOne(f._id)
-        return { ready: fhandle.ready(), fref }
-    })
+    const { ready, fref } = useOneImage(f._id)
     return <div 
     onClick={e => select(f,e)} 
     className='mediaManager-tile'
@@ -55,3 +51,15 @@ export const MediaManager: FunctionComponent<MediaManagerProps> = (props) => {
 }
 
 
+export const useOneImage = (_id: string): { ready: boolean; fref: FileRef<any> } => {
+    return useTracker(() => {
+        const fhandle = Meteor.subscribe('files.all')
+        const fref = UserFiles.findOne(_id)
+        return { ready: fhandle.ready(), fref }
+    })
+}
+
+export const TImage = node => {
+   const a = useOneImage(node.src) 
+   return a.ready ? <img src={a.fref.link() } /> : <img />
+}

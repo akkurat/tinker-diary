@@ -1,4 +1,4 @@
-
+import * as React from 'react'
 import {
     Fragment,
     ReactElement,
@@ -11,58 +11,33 @@ import { unified } from 'unified';
 import remarkToRehype from 'remark-rehype';
 
 
-import remarkParse from 'remark-parse';
 import rehypeReact from 'rehype-react';
-import find from 'unist-util-find';
-import { toString } from "mdast-util-to-string";
+import { TImage, useOneImage } from './MediaManager';
+import { extractMdastAndMetaInfo } from '../api/methods/extractMdastAndMetaInfo';
 
 
-function getTitle(mdast) {
-    let h1 = find(mdast, { type: "heading", depth: 1 });
-    return toString(h1 || "(Ohne Titel)");
-}
-function getHead(mdast) {
-    let h1 = find(mdast, { type: "heading", depth: 2 });
-    return toString(h1 || "(Ohne Thema)");
-}
-
-export const useRemarkMeta: () => [a: ReactElement | null, b: string, c: (t: string) => void] = () => {
-    const [reactContent, setReactContent] = useState<ReactElement | null>(null);
-    const [meta, setMeta] = useState('');
-
-    const setMarkdownSource = useCallback(async (source: string) => {
-        const vfile = await unified()
-            .use(remarkParse)
-            .use(() => tree => setMeta(getTitle(tree)))
-            .use(remarkToRehype)
-            .use(rehypeReact, { createElement, Fragment })
-            .process(source)
-
-        setReactContent(vfile.result as ReactElement)
-    }, []);
-
-    return [reactContent, meta, setMarkdownSource];
-};
-
-export const useRemarkMeta2: (i: string) => [a: ReactElement | null, b: {title: string, head: string}, c: (t: string) => void] = (initial) => {
+    type NewType = {
+        title: string;
+        head: string;
+        vdom: ReactElement;
+    };
+export const useRemarkMeta2: (i?: string) => [a: NewType | null, c: (t: string) => void] = (initial) => {
     const first = useRef(true)
-    const [reactContent, setReactContent] = useState<ReactElement | null>(null);
-    const [meta, setMeta] = useState({title:'', head:''});
+
+    const [reactContent, setReactContent] = useState<NewType | null>(null);
 
     const setMarkdownSource = useCallback(async (source: string) => {
-        const mdast = unified()
-            .use(remarkParse)
-            .parse(source)
-
-        setMeta({title: getTitle(mdast), head: getHead(mdast)} )
+        const { mdast, meta } = extractMdastAndMetaInfo(source);
 
         const parser = unified()
             .use(remarkToRehype)
-            .use(rehypeReact, { createElement, Fragment })
+            .use(rehypeReact, { createElement, Fragment, 
+                components: { img: TImage } } )
 
         const out = parser.stringify(parser.runSync(mdast))
 
-        setReactContent(out as ReactElement)
+        // setMeta(meta )
+        setReactContent({vdom: out as ReactElement, ...meta})
     }, []);
     if( first.current && initial )
     {
@@ -70,5 +45,6 @@ export const useRemarkMeta2: (i: string) => [a: ReactElement | null, b: {title: 
         setMarkdownSource(initial)
     }
 
-    return [reactContent, meta, setMarkdownSource];
+    return [reactContent, setMarkdownSource];
 };
+
