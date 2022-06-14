@@ -11,12 +11,15 @@ Meteor.methods({
         BlogCollection.update(_id, { $set: payload })
     },
     'blog.push': (_id, payload) =>
-        BlogCollection.update(_id, { $push: payload }),
+        BlogCollection.update(_id, { $addToSet: payload }),
+    'blog.pull': (_id, payload) =>
+        BlogCollection.update(_id, { $pull: payload }),
     'blog.add': () => {
         return BlogCollection.insert({  })
     },
     'blog.setMd': (_id, md) => {
        const {mdast, meta } = extractMdastAndMetaInfo(md) 
-       BlogCollection.update(_id, { $set: {md, t:meta.title, h:meta.head}} ) 
+       console.log(meta)
+       BlogCollection.update(_id, { $set: {md, t:meta.title, h:meta.head}, $addToSet: {files: { $each: meta.files}}} ) 
     }
 })

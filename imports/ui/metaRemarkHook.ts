@@ -16,11 +16,11 @@ import { TImage, useOneImage } from './MediaManager';
 import { extractMdastAndMetaInfo } from '../api/methods/extractMdastAndMetaInfo';
 
 
-    type NewType = {
-        title: string;
-        head: string;
-        vdom: ReactElement;
-    };
+type NewType = {
+    title: string;
+    head: string;
+    vdom: ReactElement;
+};
 export const useRemarkMeta2: (i?: string) => [a: NewType | null, c: (t: string) => void] = (initial) => {
     const first = useRef(true)
 
@@ -31,17 +31,18 @@ export const useRemarkMeta2: (i?: string) => [a: NewType | null, c: (t: string) 
 
         const parser = unified()
             .use(remarkToRehype)
-            .use(rehypeReact, { createElement, Fragment, 
-                components: { img: TImage } } )
+            .use(rehypeReact, {
+                createElement, Fragment,
+                components: { img: TImage }
+            })
 
         const out = parser.stringify(parser.runSync(mdast))
 
         // setMeta(meta )
-        setReactContent({vdom: out as ReactElement, ...meta})
+        setReactContent({ vdom: out as ReactElement, ...meta })
     }, []);
-    if( first.current && initial )
-    {
-        first.current =false;
+    if (first.current && initial) {
+        first.current = false;
         setMarkdownSource(initial)
     }
 

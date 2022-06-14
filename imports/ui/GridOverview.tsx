@@ -133,13 +133,13 @@ const EditInt = ({ g, files }) => {
                 (err, res) => { if (err) { alert(err) } else { navigate(newLocation) } })
         }
     }
-    const handleMediaSelect = (f: FileObj<any>) =>
-        Meteor.call('blog.push', g._id, { files: f._id })
+    const handleMediaSelect = (fid) =>
+        Meteor.call('blog.push', g._id, { files: fid })
+    const handleMediaRemove = (fid) =>
+        Meteor.call('blog.pull', g._id, { files: fid })
 
     return <div className="view-articleEdit">
-        <div className="toolbar" />
-        <MediaManager className="mediamanager" onSelect={handleMediaSelect} />
-        <LinkedMedia files={files} className="linkedMedia" />
+        <LinkedMedia files={files && files.map(f=>f._id)} className="linkedMedia" onAdd={handleMediaSelect} onRemove={handleMediaRemove} />
         <Preview className="preview article" md={md}/>
         <div className="editor">
             {/* <div>Parsed Title: {meta.head} / {meta.title} </div> */}
