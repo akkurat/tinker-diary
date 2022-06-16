@@ -13,11 +13,11 @@ export function getHead(mdast) {
     return toString(h1 || "(Ohne Thema)");
 }
 
-export function getFiles(mdast) {
-    const result = []
+export function getFiles(mdast): string[] {
+    const result: string[] = []
     if(!mdast.children)
     {
-        return []
+        return result;
     }
     for( const child of mdast.children)
     {

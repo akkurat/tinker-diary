@@ -15,16 +15,21 @@ import rehypeReact from 'rehype-react';
 import { TImage, useOneImage } from './MediaManager';
 import { extractMdastAndMetaInfo } from '../api/methods/extractMdastAndMetaInfo';
 
-
-type NewType = {
+type MdMetaInfo = {
     title: string;
     head: string;
+    files: string[]
+}
+
+type MdParseResult = {
     vdom: ReactElement;
+    meta: MdMetaInfo;
 };
-export const useRemarkMeta2: (i?: string) => [a: NewType | null, c: (t: string) => void] = (initial) => {
+
+export const useRemarkMeta2: (i?: string) => [a: MdParseResult | null, c: (t: string) => void] = (initial) => {
     const first = useRef(true)
 
-    const [reactContent, setReactContent] = useState<NewType | null>(null);
+    const [reactContent, setReactContent] = useState<MdParseResult | null>(null);
 
     const setMarkdownSource = useCallback(async (source: string) => {
         const { mdast, meta } = extractMdastAndMetaInfo(source);
@@ -39,7 +44,7 @@ export const useRemarkMeta2: (i?: string) => [a: NewType | null, c: (t: string) 
         const out = parser.stringify(parser.runSync(mdast))
 
         // setMeta(meta )
-        setReactContent({ vdom: out as ReactElement, ...meta })
+        setReactContent({ vdom: out as ReactElement, meta })
     }, []);
     if (first.current && initial) {
         first.current = false;

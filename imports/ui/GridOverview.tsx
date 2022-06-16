@@ -18,6 +18,10 @@ import { MediaManager, useOneImage } from "./MediaManager"
 import { LinkedMedia } from "./WikiComponents/LinkedMedia"
 import { FileObj } from "meteor/ostrio:files"
 import classNames from "classnames"
+import ReactImageGallery, { ReactImageGalleryItem } from "react-image-gallery"
+
+import '../../node_modules/react-image-gallery/styles/css/image-gallery.css'
+
 
 
 
@@ -32,17 +36,17 @@ const l = new LoremIpsum({
     }
 })
 
-const GridElement = ({ g, i }) => (<div key={i}  className={classNames('blogGridChild', {'span-2': g.files?.length > 1})}>
+const GridElement = ({ g, i }) => (<div key={i} className={classNames('blogGridChild', { 'span-2': g.files?.length > 1 })}>
     <h3><Link to={g._id}>{g.h}</Link></h3>
     <h2><Link to={g._id}>{g.t}</Link></h2>
-    <p><Link to={g._id}>{g?.md?.substring(0,200)}</Link></p>
-    {g.files?.map( f => {
-       const {ready, fref} = useOneImage(f)
-       return ready ? <img src={fref.link()} /> : <img />
+    <p><Link to={g._id}>{g?.md?.substring(0, 200)}</Link></p>
+    {g.files?.map(f => {
+        const { ready, fref } = useOneImage(f)
+        return ready ? <img src={fref.link()} /> : <img />
     })}
 </div>)
 
-const DummyGridelement = ({ i }) => (<div key={i}  className="dummy blogGridChild">
+const DummyGridelement = ({ i }) => (<div key={i} className="dummy blogGridChild">
     <h3>{l.generateWords(3)}</h3>
     <h2>{l.generateSentences(1)}</h2>
     {/* <div>{l.generateParagraphs(1).split("\n").map(p => <p>{p}</p>)}</div> */}
@@ -71,9 +75,20 @@ const Preview = ({ md, className }: { md: string, className: string }) => {
     const [reactMetaContent, setMetaRact] = useRemarkMeta2()
     useEffect(() => {
         setMetaRact(md);
-      }, [md, setMetaRact]);
+    }, [md, setMetaRact]);
+    const { ready, fileRefs } = useTracker(() => {
+        const fhandle = Meteor.subscribe('files.all');
+        const fileRefs = reactMetaContent?.meta?.files
+            .map((fid: string) => UserFiles.findOne(fid))
+        return { fileRefs, ready: fhandle.ready() }
+    })
+    console.log(ready )
+    const items: ReactImageGalleryItem = fileRefs
+        ?.map(fref => fref.link())
+        ?.map(url => ({ original: url }))
     return <div className={className}>
         {reactMetaContent?.vdom}
+        {ready && <ReactImageGallery items={items} />}
     </div>
 }
 
@@ -81,6 +96,7 @@ const GridElementLarge = () => {
 
     const { idx } = useParams()
     const { g, ready, files } = useOneBlog(idx)
+
 
 
     const handleUpdate = prop => ev =>
@@ -139,8 +155,8 @@ const EditInt = ({ g, files }) => {
         Meteor.call('blog.pull', g._id, { files: fid })
 
     return <div className="view-articleEdit">
-        <LinkedMedia files={files && files.map(f=>f._id)} className="linkedMedia" onAdd={handleMediaSelect} onRemove={handleMediaRemove} />
-        <Preview className="preview article" md={md}/>
+        <LinkedMedia files={files && files.map(f => f._id)} className="linkedMedia" onAdd={handleMediaSelect} onRemove={handleMediaRemove} />
+        <Preview className="preview article" md={md} />
         <div className="editor">
             {/* <div>Parsed Title: {meta.head} / {meta.title} </div> */}
             <textarea onContextMenu={handleClick} value={md} onChange={handleMdChange}></textarea>
@@ -165,7 +181,7 @@ export const LeGrid = () => <Routes>
     <Route path="/:idx" element={<GridElementLarge />} />
     <Route path="/:idx/edit" element={<Edit />} />
 </Routes >
-function useOneBlog(idx: string): { g: any; ready: boolean, files: any } {
+function useOneBlog(idx: string): { g: any; ready: boolean, files: FileObj } {
     return useTracker(() => {
         const handle = Meteor.subscribe('blog.one', idx)
         const handle2 = Meteor.subscribe('files.all', idx)

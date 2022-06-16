@@ -1,11 +1,11 @@
 import { Meteor } from 'meteor/meteor';
 import { PagesCollection } from '/imports/api/collections/pages';
 import { LinksCollection } from '/imports/api/collections/links';
-import { UserFiles } from '/imports/api/collections/files';
 import '/imports/api/methods/pageMethods'
 import '/imports/api/methods/blogMethods'
+import '/imports/api/methods/fileMethods'
+
 import { BlogCollection } from '../imports/api/collections/blog';
-import {LoremIpsum } from 'lorem-ipsum';
 
 const path = require('node:path');
 
@@ -20,8 +20,6 @@ const SEED_USERNAME = 'boris';
 const SEED_PASSWORD = 'lecoqestmort';
 
 Meteor.startup(() => {
-  Meteor.publish('files.all', () => 
-  UserFiles.find().cursor)
   if (!Accounts.findUserByUsername(SEED_USERNAME)) {
     Accounts.createUser({
       username: SEED_USERNAME,
@@ -65,19 +63,9 @@ Meteor.startup(() => {
   }
 
   if (BlogCollection.find().count() === 0) {
-    const l = new LoremIpsum({
-      sentencesPerParagraph: {
-        max: 6,
-        min: 1
-      },
-      wordsPerSentence: {
-        max: 10,
-        min: 2
-      }
-    })
-    const grids = [...Array(12).keys()].map(idx => ({ t: l.generateSentences(1), h: l.generateWords(2), md: l.generateParagraphs(40) }))
-    grids.forEach(g => BlogCollection.insert(g))
-
+    const grids = [...Array(12).keys()]
+    .forEach(idx => Meteor.call('blog.add'))
   }
+
 });
 

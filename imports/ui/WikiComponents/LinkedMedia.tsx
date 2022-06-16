@@ -32,7 +32,7 @@ export const LinkedMedia: React.FunctionComponent<LinkedMediaProps> = ({ files, 
         <ReactModal
             isOpen={open}
             // onAfterOpen={afterOpenModal}
-            // onRequestClose={closeModal}
+            onRequestClose={()=>setOpen(false)}
             // style={customStyles}
             contentLabel="Example Modal"
         >

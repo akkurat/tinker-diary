@@ -5,14 +5,18 @@ nav {
     gap: 20px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
+    height: 40px;
     
     >* {
-        padding: 1px 10px;
+        border-top-right-radius: 5px;
+        border-bottom-left-radius: 5px;
+        padding: 5px 10px;
         background-color: var(--acc);
-        &:hover {
-          padding-top: 10px ;
+        &:hover, &.active {
+          padding-top: 15px ;
         }
         transition: all 0.3s;
     }
+
     
 }

@@ -6,6 +6,7 @@ import classNames from 'classnames'
 import { DataTable } from 'primereact/datatable';
 import { FunctionComponent, useState } from 'react'
 import useLongPress from './useLongclick'
+import { useSearchParams } from 'react-router-dom'
 
 
 interface MediaTileProps {
@@ -42,14 +43,22 @@ export interface MediaManagerProps {
 export const MediaManager: FunctionComponent<MediaManagerProps> = (props) => {
     const [layout, setLayout] = useState('grid')
 
+    const [searchString, setSearchString] = useState('')
+
     const { ready, files } = useTracker(() => {
         const fhandle = Meteor.subscribe('files.all')
-        const files: FileObj<any>[] = UserFiles.find().fetch();
+        const files: FileObj<any>[] = UserFiles.find(q(searchString)).fetch();
         return { ready: fhandle.ready(), files }
     })
+    console.log(ready)
     if (ready)
         return <div className={'widget-mediaManager ' + props.className}>
-            <ul className='toolbar'><li onClick={() => setLayout('list')}>List</li><li onClick={() => setLayout('grid')}>Grid</li></ul>
+            <ul className='toolbar'>
+                <li onClick={() => setLayout('list')}>List</li>
+                <li onClick={() => setLayout('grid')}>Grid</li>
+                <input value={searchString} onChange={({currentTarget:{value}})=>setSearchString(value)}/>
+                <div>X</div>
+            </ul>
             <ul className={layout}>
                 {files.map(f => <li><MediaTile fid={f._id} onSelect={props.onSelect} /></li>)}
             </ul>
@@ -68,6 +77,14 @@ export const useOneImage = (_id: string): { ready: boolean; fref: FileRef<any> }
 }
 
 export const TImage = node => {
+    console.log(node)
     const a = useOneImage(node.src)
-    return a.ready ? <img src={a.fref.link()} /> : <img />
+    return a.ready ? <img src={a.fref.link()} className={node.alt} /> : <img />
+}
+
+function q(searchString: string) {
+    if (searchString === '') {
+        return;
+    }
+    return { name: { $regex: new RegExp(searchString) } }
 }

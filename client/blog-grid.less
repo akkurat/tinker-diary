@@ -1,3 +1,4 @@
+
 .blogGrid {
     display: grid;
     gap: 60px;
@@ -73,15 +74,30 @@
         font-weight: 300;
         line-height: 38px;
         font-family: "BarlowSemi";
+        // display: flex;
+        // align-items: center;
+        // flex-direction: column;
+    }
+
+    img {
         display: flex;
-        align-items: center;
-        flex-direction: column;
+        // width: calc(80vw + 300px);
+        max-width: 1100px;
+        margin-left: -150px;
+        margin-right: -150px;
     }
     
-    img {
-        max-width: 1100px;
-        width: 80vw;
-        align-self: center;
+    img.klein {
+        width: 200px;
+    }
+
+    img.links {
+        float: left;
+        margin: 20px;
+    }
+    img.rechts {
+       float:right; 
+       margin: 20px;
     }
 }
 

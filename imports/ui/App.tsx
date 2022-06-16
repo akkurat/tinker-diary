@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { BrowserRouter, Link, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter, NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import { LeGrid } from './GridOverview';
 import { Home } from './Home';
 import { Info } from './Info';
@@ -26,11 +26,12 @@ export const App = () => {
           <LoginForm />
         </section>
         <nav id="navtop" className="few">
-          <Link to="/">Home</Link>
-          <Link to="/about">About</Link>
-          <Link to="/pages">Pages</Link>
-          <Link to="/blog">Blog</Link>
-          <Link to="/files">Files</Link>
+          <NavLink to="/">Home</NavLink>
+          <NavLink to="/about">About</NavLink>
+          <NavLink to="/pages">Pages</NavLink>
+          <NavLink to="/blog">Blog</NavLink>
+          <NavLink to="/files">Files</NavLink>
+          <NavLink to="/projekte">Projekte</NavLink>
         </nav>
         <div id="contentContainer">
           <BottomNav.Provider value={setBottomNav}>
