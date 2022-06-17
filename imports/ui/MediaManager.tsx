@@ -4,7 +4,7 @@ import { useTracker } from "meteor/react-meteor-data"
 import { UserFiles } from "../api/collections/files"
 import classNames from 'classnames'
 import { DataTable } from 'primereact/datatable';
-import { FunctionComponent, useState } from 'react'
+import { FunctionComponent, RefObject, useState } from 'react'
 import useLongPress from './useLongclick'
 import { useSearchParams } from 'react-router-dom'
 
@@ -16,7 +16,24 @@ interface MediaTileProps {
 }
 
 export const MediaTile: FunctionComponent<MediaTileProps> = ({ fid, onSelect, onLongClick }) => {
+
+    const inputRef: RefObject<HTMLInputElement> = React.useRef(null)
+    const [edit, setEdit] = useState(false)
+
     const { ready, fref } = useOneImage(fid)
+    const handleTagAdded = ev => {
+        const input = ev.currentTarget
+        if (input.value.trim() === '') {
+            setEdit(false); return;
+        }
+        console.log(Meteor.call('files.updateTags',
+            fid, input.value.split(','),
+            (suc, err) => {
+                console.log(suc, err)
+                if (!err) { input.value = ''; setEdit(false) }
+            }))
+    }
+    React.useEffect(() =>{edit && inputRef?.current?.focus() },[edit] )
     let handleLongpress = {}
     handleLongpress = useLongPress(() => onLongClick && onLongClick(fid), e => onSelect && onSelect(fid, e))
     return <div
@@ -32,6 +49,11 @@ export const MediaTile: FunctionComponent<MediaTileProps> = ({ fid, onSelect, on
         } >
         {ready && <img src={fref.link()} />}
         <label>{fref.name}</label>
+        <div>
+            {(fref.meta?.tags || []).map(tag => <span className='tag'>{tag}</span>)}
+
+            {edit ? <input ref={inputRef}onBlur={handleTagAdded} /> : <a onClick={() => setEdit(v => !v)}>E</a>}</div>
+
     </div>
 }
 
@@ -56,7 +78,7 @@ export const MediaManager: FunctionComponent<MediaManagerProps> = (props) => {
             <ul className='toolbar'>
                 <li onClick={() => setLayout('list')}>List</li>
                 <li onClick={() => setLayout('grid')}>Grid</li>
-                <input value={searchString} onChange={({currentTarget:{value}})=>setSearchString(value)}/>
+                <input value={searchString} onChange={({ currentTarget: { value } }) => setSearchString(value)} />
                 <div>X</div>
             </ul>
             <ul className={layout}>

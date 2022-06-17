@@ -83,7 +83,7 @@ export const FileUploadToCollection: FunctionComponent<FileUploadToCollectionPro
     }
 
     return <div>
-        <input type='file' ref={refFileupload} disabled={inPogress}
+        <input type='file' webkitdirectory mozdirectory directory ref={refFileupload} disabled={inPogress}
             onChange={uploadIt} />
     </div>
 }
