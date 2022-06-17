@@ -69,8 +69,8 @@ const BlogGrid = () => {
             <div className="blogGrid dummy">{[...Array(12).keys()].map(i => <DummyGridelement i={i} />)}</div>
         )
     }
-
 }
+
 const Preview = ({ md, className }: { md: string, className: string }) => {
     const [reactMetaContent, setMetaRact] = useRemarkMeta2()
     useEffect(() => {
