@@ -20,17 +20,34 @@
         .mediaManager-tile {
             height: auto;
             width: auto;
+            display: flex;
+            flex-flow: column wrap;
         }
+
         img {
-            display: none;
+            height: 50px;
         }
     }
 
-    .tag {
-        border-radius: 10px;
-        background-color: var(--bg);
-        margin: 2px;
-        padding: 4px;
+    .tagbar {
+        display: flex;
+        flex-flow: row nowrap;
+
+
+        .tag {
+            border-radius: 10px;
+            background-color: var(--bg);
+            margin: 2px;
+            padding: 4px;
+        }
+
+        input {
+            flex: 1 1;
+            background: none;
+            border: none;
+            outline: none;
+
+        }
     }
 
     ul.grid {
@@ -38,9 +55,6 @@
         flex-flow: row wrap;
         gap: 10px;
     }
-
-
-
 }
 
 .mediaManager-tile {
@@ -52,13 +66,14 @@
     >img {
         height: 100%;
     }
+
     &.icon {
         font-size: 100px;
     }
 }
 
 .mediaManager-linked {
-    display: flex;    
+    display: flex;
     flex-direction: column;
     gap: 10px;
 }

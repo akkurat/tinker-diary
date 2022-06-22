@@ -1,21 +1,22 @@
 nav {
-    font-family: 'BarlowSemi';
-    font-weight: 900;
+    font-family: 'BarlowSemiCondensed';
+    font-weight: 700;
     display: flex;
     flex-flow: row nowrap;
     gap: 20px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    height: 35px;
+    height: 50px;
     align-items: flex-start;
     padding-top: 5px;
     
     >* {
         --fac: 0;
         border-radius: 3px;
-        height: calc( 20px + var(--fac) * 10px);
+        // height: calc( 20px + var(--fac) * 10px);
         padding: 5px 10px;
         padding-top: calc(5px + var(--fac) * 5px) ;
+        padding-bottom: calc(5px + var(--fac) * 5px) ;
         border: 2px solid var(--acc);
         a {
           display: block;

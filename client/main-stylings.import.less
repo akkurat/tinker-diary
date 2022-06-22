@@ -1,11 +1,17 @@
 
+#body {
+  font-family: "BarlowCondensed";
+  color: var(--text);
+}
+
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-  font-family: 'Merriweather Sans';
+  font-family: 'Barlow';
+  font-weight: 500;
 }
 
 h1 {
@@ -19,5 +25,16 @@ a {
 }
 
 .username {
-  font-family: 'BarlowSemi';
+  font-family: 'BarlowSemiCondensed';
+}
+@keyframes shiftingGradient {
+  0%   { background-position-x: 0px; }
+  50%  { background-position-x:1000px; }
+  100%  { background-position-x: 0px;} 
+}
+.loading {
+
+  animation: shiftingGradient  3s infinite;
+  background: linear-gradient(90deg, var(--bg),  var(--acc), var(--bg))
+  
 }

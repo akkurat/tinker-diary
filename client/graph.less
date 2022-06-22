@@ -1,0 +1,53 @@
+.graph {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .node {
+        transform: scale(calc(0.001 * var(--fac) + 1)) translateX(calc(0.5px * var(--fac)));
+    }
+
+    * {
+        // border: 1px solid var(--acc);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-flow: row nowrap;
+        font-size: 28px;
+
+        img {
+            height: 150px;
+        }
+
+
+        * {
+            flex-flow: column nowrap;
+            font-size: 28px;
+
+            img {
+                height: 100px;
+            }
+
+            * {
+                flex-flow: row nowrap;
+                font-size: 20px;
+
+                img {
+                    height: 50px;
+                }
+
+                * {
+                    flex-flow: column nowrap;
+                    font-size: 12px;
+
+                    * {
+                        flex-flow: row nowrap;
+                        font-size: 8px;
+                    }
+                }
+            }
+        }
+    }
+
+
+}

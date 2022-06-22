@@ -2,6 +2,21 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Launch Program",
+            "cwd": "${workspaceFolder}/public",
+            "program": "${workspaceFolder}/public/generate_css.js",
+            "args": ["fonts/Barlow"],
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "outputCapture": "std",
+            "type": "node"
+        },
+        
+        
+
+        {
             "type": "chrome",
             "request": "launch",
             "name": "Meteor: Chrome",

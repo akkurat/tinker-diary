@@ -3,7 +3,6 @@ import { FileObj, FileRef } from "meteor/ostrio:files"
 import { useTracker } from "meteor/react-meteor-data"
 import { UserFiles } from "../api/collections/files"
 import classNames from 'classnames'
-import { DataTable } from 'primereact/datatable';
 import { FunctionComponent, RefObject, useState } from 'react'
 import useLongPress from './useLongclick'
 import { useSearchParams } from 'react-router-dom'
@@ -18,22 +17,20 @@ interface MediaTileProps {
 export const MediaTile: FunctionComponent<MediaTileProps> = ({ fid, onSelect, onLongClick }) => {
 
     const inputRef: RefObject<HTMLInputElement> = React.useRef(null)
-    const [edit, setEdit] = useState(false)
 
     const { ready, fref } = useOneImage(fid)
     const handleTagAdded = ev => {
         const input = ev.currentTarget
         if (input.value.trim() === '') {
-            setEdit(false); return;
+            return;
         }
         console.log(Meteor.call('files.updateTags',
             fid, input.value.split(','),
             (suc, err) => {
                 console.log(suc, err)
-                if (!err) { input.value = ''; setEdit(false) }
+                if (!err) { input.value = ''; }
             }))
     }
-    React.useEffect(() =>{edit && inputRef?.current?.focus() },[edit] )
     let handleLongpress = {}
     handleLongpress = useLongPress(() => onLongClick && onLongClick(fid), e => onSelect && onSelect(fid, e))
     return <div
@@ -49,10 +46,10 @@ export const MediaTile: FunctionComponent<MediaTileProps> = ({ fid, onSelect, on
         } >
         {ready && <img src={fref.link()} />}
         <label>{fref.name}</label>
-        <div>
+        <div className='tagbar'>
             {(fref.meta?.tags || []).map(tag => <span className='tag'>{tag}</span>)}
-
-            {edit ? <input ref={inputRef}onBlur={handleTagAdded} /> : <a onClick={() => setEdit(v => !v)}>E</a>}</div>
+            <input ref={inputRef} onBlur={handleTagAdded} />
+        </div>
 
     </div>
 }

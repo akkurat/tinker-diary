@@ -23,7 +23,7 @@ Meteor.methods({
     'blog.pull': (_id, payload) =>
         BlogCollection.update(_id, { $pull: payload }),
     'blog.add': () => {
-        const id = BlogCollection.insert({})
+        const id = BlogCollection.insert({creationDate: new Date()})
         setMd(id, genMd() )
     },
     'blog.setMd': setMd

@@ -1,3 +1,4 @@
+import createThumbnails from "../../../server/createThumbnails";
 import { UserFiles } from "../collections/files";
 
 Meteor.publish('files.all', () =>
@@ -12,3 +13,26 @@ Meteor.methods({
     }
 })
 
+UserFiles.find().forEach(fObj => {
+    if (!fObj.versions.thumbnail) {
+        createThumbnails(UserFiles, fObj, (error, fileRef) => {
+            if (error) {
+                console.log(error)
+            } else {
+                console.log("thumb for " + fObj)
+            }
+        })
+    }
+})
+
+
+UserFiles.on('afterUpload', function (fileRef) {
+    // Run `createThumbnails` only over PNG, JPG and JPEG files
+    if (/png|jpe?g/i.test(fileRef.extension || '')) {
+        createThumbnails(this, fileRef, (error, fileRef) => {
+            if (error) {
+                console.error(error);
+            }
+        });
+    }
+});

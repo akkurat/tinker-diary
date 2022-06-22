@@ -2,12 +2,13 @@ import * as React from 'react';
 import { FunctionComponent, MouseEvent } from 'react';
 import { BrowserRouter, NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import { ReactElement } from 'rehype-react/lib';
-import { LeGrid } from './GridOverview';
 import { Home } from './Home';
 import { Info } from './Info';
 import { LoginForm } from './Login';
 import { Pages } from './Pages';
+import { Projects } from './Projects';
 import { Up } from './Upload';
+import { LeGrid } from './WikiComponents/GridOverview';
 
 const DaNav: FunctionComponent<{ children: ReactElement[] }> = ({ children }) => {
 
@@ -82,7 +83,7 @@ export const App = () => {
           <NavLink to="/pages">Pages</NavLink>
           <NavLink to="/blog">Blog</NavLink>
           <NavLink to="/files">Files</NavLink>
-          <NavLink to="/projekte">Projekte</NavLink>
+          <NavLink to="/projects">Projekte</NavLink>
         </DaNav>
         <div id="contentContainer">
           <BottomNav.Provider value={setBottomNav}>
@@ -92,6 +93,7 @@ export const App = () => {
               <Route path="/about" element={<Info />} />
               <Route path="/pages/*" element={<Pages />} />
               <Route path="/files/*" element={<Up />} />
+              <Route path="/projects/*" element={<Projects />} />
             </Routes>
           </BottomNav.Provider>
         </div>
